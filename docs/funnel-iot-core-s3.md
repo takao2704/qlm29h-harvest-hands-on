@@ -212,16 +212,6 @@ SORACOM Funnelは非同期で転送します。順序の入れ替わりや重複
 
 このハンズオンのJSONは仕組みを観察するための最小構成なので、`message_id`の追加や連続送信は応用課題です。
 
-## IoT Coreが不要な場合
-
-保存先がS3だけで、MQTTトピックによるルーティング、フィルタリング、複数サービスへの分岐が不要なら、FunnelからAmazon Data Firehoseへ直接転送する構成の方が単純です。
-
-```text
-Unified Endpoint → Funnel → Amazon Data Firehose → Amazon S3
-```
-
-AWS IoT Coreを挟む構成は、IoT Ruleで条件に応じて複数の処理へ分岐したい場合や、将来ほかのAWSサービスへ展開したい場合に適しています。
-
 ## 公式資料
 
 - [Unified Endpoint](https://developers.soracom.io/en/docs/unified-endpoint/)
