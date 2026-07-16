@@ -8,7 +8,7 @@ source "$SCRIPT_DIR/lib/common.sh"
 require_command timeout
 require_command stty
 
-read_timeout=${SERIAL_READ_TIMEOUT:-15}
+read_timeout=${SERIAL_READ_TIMEOUT:-5}
 require_positive_number "$read_timeout" SERIAL_READ_TIMEOUT
 port=$(resolve_serial_port)
 configure_serial_port "$port"

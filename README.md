@@ -87,7 +87,7 @@ cd qlm29h-harvest-hands-on
 |---|---|---|
 | `SERIAL_PORT` | 自動検出 | QLM29Hのシリアルポート |
 | `SERIAL_BAUD` | `115200` | シリアル通信速度 |
-| `SERIAL_READ_TIMEOUT` | `15` | GGAを待つ最大秒数 |
+| `SERIAL_READ_TIMEOUT` | `5` | NMEA表示・GGA待機の最大秒数 |
 | `SORACOM_ENDPOINT` | `http://uni.soracom.io` | JSONの送信先 |
 
 ポートを明示する例:

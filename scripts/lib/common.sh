@@ -127,7 +127,7 @@ extract_first_gga_from_file() {
 
 extract_first_gga_from_serial() {
   local port=$1
-  local read_timeout=${SERIAL_READ_TIMEOUT:-15}
+  local read_timeout=${SERIAL_READ_TIMEOUT:-5}
 
   require_positive_number "$read_timeout" SERIAL_READ_TIMEOUT
   configure_serial_port "$port"

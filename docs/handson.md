@@ -136,7 +136,7 @@ export SERIAL_PORT=/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0
 ./scripts/02-show-nmea.sh
 ```
 
-既定では115200 bpsで15秒間表示します。次のように`$`で始まる複数種類の行が流れます。
+既定では115200 bpsで5秒間表示します。次のように`$`で始まる複数種類の行が流れます。
 
 ```text
 $GNRMC,...
@@ -159,7 +159,7 @@ source "$SCRIPT_DIR/lib/common.sh"
 require_command timeout
 require_command stty
 
-read_timeout=${SERIAL_READ_TIMEOUT:-15}
+read_timeout=${SERIAL_READ_TIMEOUT:-5}
 require_positive_number "$read_timeout" SERIAL_READ_TIMEOUT
 port=$(resolve_serial_port)
 configure_serial_port "$port"
@@ -188,7 +188,7 @@ fi
 | `SCRIPT_DIR=...` | どのディレクトリから実行しても、スクリプト自身が置かれた場所を取得します。 |
 | `source .../common.sh` | ポート検出、シリアル設定、エラー表示などの共通関数を読み込みます。 |
 | `require_command` | この処理で使う`timeout`と`stty`がインストール済みか確認します。 |
-| `read_timeout=${SERIAL_READ_TIMEOUT:-15}` | 環境変数がなければ、読み取り時間を15秒にします。 |
+| `read_timeout=${SERIAL_READ_TIMEOUT:-5}` | 環境変数がなければ、読み取り時間を5秒にします。 |
 | `port=$(resolve_serial_port)` | `SERIAL_PORT`の指定を使うか、USBシリアルポートを自動検出します。 |
 | `configure_serial_port "$port"` | ポートを既定115200 bpsのrawモードに設定します。 |
 | `timeout ... cat "$port"` | 指定時間だけシリアルポートを開き、届いた文字をそのまま表示します。 |
@@ -209,7 +209,7 @@ stty -F "$port" "$baud" raw -echo -ixon -ixoff
 - `-echo`: 受信文字をシリアル側へ送り返しません。
 - `-ixon -ixoff`: XON/XOFFによるソフトウェアフロー制御を無効にします。
 
-`timeout`は指定時間が経過すると終了コード`124`を返します。このスクリプトでは「15秒間の表示が予定どおり終わった」ことを意味するため、エラーにはしていません。それ以外の失敗だけを最後の`if`でエラーにします。
+`timeout`は指定時間が経過すると終了コード`124`を返します。このスクリプトでは「5秒間の表示が予定どおり終わった」ことを意味するため、エラーにはしていません。それ以外の失敗だけを最後の`if`でエラーにします。
 
 この段階ではNMEAの内容を解析していません。`cat`で受信した全文を観察し、次の章でGGAだけを取り出します。
 
