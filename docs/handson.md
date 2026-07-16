@@ -145,6 +145,74 @@ $GPGSV,...
 $GNGGA,...
 ```
 
+#### `02-show-nmea.sh`の内容を確認する
+
+実行した[`scripts/02-show-nmea.sh`](../scripts/02-show-nmea.sh)は、次の処理を行っています。
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+source "$SCRIPT_DIR/lib/common.sh"
+
+require_command timeout
+require_command stty
+
+read_timeout=${SERIAL_READ_TIMEOUT:-15}
+require_positive_number "$read_timeout" SERIAL_READ_TIMEOUT
+port=$(resolve_serial_port)
+configure_serial_port "$port"
+
+info "${port} を ${SERIAL_BAUD:-115200} bpsで ${read_timeout}秒間読み取ります。"
+printf '%s\n' '--- NMEA受信開始 ---'
+
+set +e
+timeout "${read_timeout}s" cat "$port" | sed 's/\r$//'
+read_status=${PIPESTATUS[0]}
+set -e
+
+printf '%s\n' '--- NMEA受信終了 ---'
+if ((read_status != 0 && read_status != 124)); then
+  error "シリアル読み取りに失敗しました（終了コード: ${read_status}）。"
+  exit 1
+fi
+```
+
+上から順に役割を見ていきます。
+
+| 処理 | 役割 |
+|---|---|
+| `#!/usr/bin/env bash` | このファイルをBashで実行します。 |
+| `set -euo pipefail` | コマンドの失敗、未設定変数、パイプ途中の失敗を見逃しにくくします。 |
+| `SCRIPT_DIR=...` | どのディレクトリから実行しても、スクリプト自身が置かれた場所を取得します。 |
+| `source .../common.sh` | ポート検出、シリアル設定、エラー表示などの共通関数を読み込みます。 |
+| `require_command` | この処理で使う`timeout`と`stty`がインストール済みか確認します。 |
+| `read_timeout=${SERIAL_READ_TIMEOUT:-15}` | 環境変数がなければ、読み取り時間を15秒にします。 |
+| `port=$(resolve_serial_port)` | `SERIAL_PORT`の指定を使うか、USBシリアルポートを自動検出します。 |
+| `configure_serial_port "$port"` | ポートを既定115200 bpsのrawモードに設定します。 |
+| `timeout ... cat "$port"` | 指定時間だけシリアルポートを開き、届いた文字をそのまま表示します。 |
+| `sed 's/\r$//'` | NMEAの行末にあるCRを取り除き、ターミナルで読みやすくします。 |
+| `read_status=${PIPESTATUS[0]}` | パイプ左側の`timeout`の終了状態を保存します。 |
+| `set +e` / `set -e` | `timeout`の終了状態を自分で判定する間だけ、自動終了を一時的に無効化し、その後元へ戻します。 |
+| 最後の`if` | 予定した時間切れ以外の読み取りエラーだけを異常終了にします。 |
+
+`configure_serial_port`の内部では、次の`stty`相当の設定を行っています。
+
+```bash
+baud=${SERIAL_BAUD:-115200}
+stty -F "$port" "$baud" raw -echo -ixon -ixoff
+```
+
+- `115200`: QLM29Hと合わせる既定の通信速度です。
+- `raw`: 受信文字を端末側で変換せず、そのまま読みます。
+- `-echo`: 受信文字をシリアル側へ送り返しません。
+- `-ixon -ixoff`: XON/XOFFによるソフトウェアフロー制御を無効にします。
+
+`timeout`は指定時間が経過すると終了コード`124`を返します。このスクリプトでは「15秒間の表示が予定どおり終わった」ことを意味するため、エラーにはしていません。それ以外の失敗だけを最後の`if`でエラーにします。
+
+この段階ではNMEAの内容を解析していません。`cat`で受信した全文を観察し、次の章でGGAだけを取り出します。
+
 この1行ずつをNMEAセンテンスと呼びます。代表的なセンテンスは次のとおりです。
 
 | 種類 | 主な内容 |
