@@ -85,6 +85,10 @@ grep -Fq '"lat":35.68123600' "$FAKE_CURL_LOG" || {
   printf 'not ok - 位置JSONがcurlへ渡される\n' >&2
   failed=$((failed + 1))
 }
+grep -Fq '"lon":139.76712500' "$FAKE_CURL_LOG" || {
+  printf 'not ok - 経度がlonキーでcurlへ渡される\n' >&2
+  failed=$((failed + 1))
+}
 
 export FAKE_CURL_MODE=http400
 expect_failure \

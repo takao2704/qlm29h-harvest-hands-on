@@ -89,7 +89,7 @@ function quality_label(quality) {
   utc = $2
   lat_raw = $3
   north_south = $4
-  lng_raw = $5
+  lon_raw = $5
   east_west = $6
   quality = $7
   satellites = $8
@@ -117,13 +117,13 @@ function quality_label(quality) {
   }
 
   lat = coordinate(lat_raw, north_south, 2, 90, "緯度")
-  lng = coordinate(lng_raw, east_west, 3, 180, "経度")
+  lon = coordinate(lon_raw, east_west, 3, 180, "経度")
   satellites_json = optional_number(satellites, "satellites")
   hdop_json = optional_number(hdop, "hdop")
   altitude_json = optional_number(altitude, "altitude_m")
   utc_formatted = substr(utc, 1, 2) ":" substr(utc, 3, 2) ":" substr(utc, 5) "Z"
 
-  printf "{\"source\":\"qlm29h-gga\",\"lat\":%.8f,\"lng\":%.8f,", lat, lng
+  printf "{\"source\":\"qlm29h-gga\",\"lat\":%.8f,\"lon\":%.8f,", lat, lon
   printf "\"quality\":%d,\"quality_label\":\"%s\",", quality, quality_label(quality)
   printf "\"satellites\":%s,\"hdop\":%s,\"altitude_m\":%s,", satellites_json, hdop_json, altitude_json
   printf "\"utc_time\":\"%s\"}\n", utc_formatted

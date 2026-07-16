@@ -103,7 +103,7 @@ export SERIAL_PORT=/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0
 {
   "source": "qlm29h-gga",
   "lat": 35.681236,
-  "lng": 139.767125,
+  "lon": 139.767125,
   "quality": 4,
   "quality_label": "Fixed RTK",
   "satellites": 24,
@@ -113,7 +113,7 @@ export SERIAL_PORT=/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0
 }
 ```
 
-`lat`と`lng`はHarvest Dataの地図表示で使用するキーです。GGAには日付が含まれないため、`utc_time`は時刻のみを表します。Harvest Data上のデータ時刻には、サーバーが受信した時刻を使用します。
+`lat`と`lon`はHarvest Dataの地図表示で使用するキーです。GGAには日付が含まれないため、`utc_time`は時刻のみを表します。Harvest Data上のデータ時刻には、サーバーが受信した時刻を使用します。
 
 ## サンプルデータで試す
 

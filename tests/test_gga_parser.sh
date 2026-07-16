@@ -69,7 +69,7 @@ assert_output_contains \
   'Fixed RTKを十進数度へ変換できる' \
   fixed-rtk.nmea \
   '"lat":35.68123600' \
-  '"lng":139.76712500' \
+  '"lon":139.76712500' \
   '"quality":4' \
   '"quality_label":"Fixed RTK"' \
   '"utc_time":"03:04:05.000Z"'
@@ -90,7 +90,7 @@ assert_output_contains \
   '南緯・西経を負数へ変換できる' \
   south-west.nmea \
   '"lat":-33.43500000' \
-  '"lng":-70.65000000'
+  '"lon":-70.65000000'
 
 assert_output_contains \
   '任意フィールドの空欄をnullへ変換できる' \
