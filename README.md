@@ -76,7 +76,6 @@ cd qlm29h-harvest-hands-on
 | スクリプト | 役割 |
 |---|---|
 | `00-check-environment.sh` | 必須コマンド、通信経路、シリアル接続を確認 |
-| `01-send-dummy.sh` | 温度のダミーJSONをHTTP POST |
 | `02-show-nmea.sh` | QLM29Hから届くNMEAを一定時間表示 |
 | `03-show-gga.sh` | 最初のGGAセンテンスを抽出 |
 | `04-format-gga.sh` | GGAをHarvest Data用JSONへ変換 |

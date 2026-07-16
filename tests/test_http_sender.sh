@@ -78,12 +78,6 @@ expect_failure() {
 }
 
 export FAKE_CURL_MODE=success
-expect_success 'ダミーデータのHTTP 201を成功にする' "$ROOT_DIR/scripts/01-send-dummy.sh" 23
-grep -Fq '{"temperature":23}' "$FAKE_CURL_LOG" || {
-  printf 'not ok - ダミーJSONがcurlへ渡される\n' >&2
-  failed=$((failed + 1))
-}
-
 expect_success \
   'サンプルGGAをJSONへ変換して送信できる' \
   "$ROOT_DIR/scripts/05-send-position-once.sh" --input "$ROOT_DIR/samples/fixed-rtk.nmea"
@@ -93,13 +87,22 @@ grep -Fq '"lat":35.68123600' "$FAKE_CURL_LOG" || {
 }
 
 export FAKE_CURL_MODE=http400
-expect_failure 'HTTP 400を失敗にする' 'SIMグループとHarvest Dataの設定' "$ROOT_DIR/scripts/01-send-dummy.sh"
+expect_failure \
+  'HTTP 400を失敗にする' \
+  'SIMグループとHarvest Dataの設定' \
+  "$ROOT_DIR/scripts/05-send-position-once.sh" --input "$ROOT_DIR/samples/fixed-rtk.nmea"
 
 export FAKE_CURL_MODE=http500
-expect_failure 'HTTP 500を失敗にする' 'サービス状態と通信経路' "$ROOT_DIR/scripts/01-send-dummy.sh"
+expect_failure \
+  'HTTP 500を失敗にする' \
+  'サービス状態と通信経路' \
+  "$ROOT_DIR/scripts/05-send-position-once.sh" --input "$ROOT_DIR/samples/fixed-rtk.nmea"
 
 export FAKE_CURL_MODE=connection
-expect_failure '接続失敗を明示する' '再送は行っていません' "$ROOT_DIR/scripts/01-send-dummy.sh"
+expect_failure \
+  '接続失敗を明示する' \
+  '再送は行っていません' \
+  "$ROOT_DIR/scripts/05-send-position-once.sh" --input "$ROOT_DIR/samples/fixed-rtk.nmea"
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
 ((failed == 0))
