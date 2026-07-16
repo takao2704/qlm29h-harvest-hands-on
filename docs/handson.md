@@ -570,6 +570,23 @@ No Fixの場合はJSONを作らず、次のように終了します。
 
 サンプルの位置は教材用の固定値です。実機データと取り違えないよう、`source`と実行したコマンドを確認してください。
 
+### 5-4. 応用: Unified Endpointを変えずにAWSへ転送する
+
+SIMグループでSORACOM Funnelを追加すると、Raspberry Piの送信先を変更せず、同じ測位JSONをHarvest DataとAWSの両方へ送れます。
+
+```text
+Raspberry Pi → Unified Endpoint ┬→ Harvest Data
+                               └→ Funnel → AWS IoT Core → Firehose → S3（JSONL）
+```
+
+Raspberry Piで実行するコマンドは、5-2と同じです。
+
+```bash
+./scripts/05-send-position-once.sh
+```
+
+S3は通常、1つのファイルへ1行ずつ追記するのではなく、Firehoseが複数レコードを改行で連結し、`.jsonl`オブジェクトを順次作成します。設定方法と確認ポイントは[Unified Endpointを変えずにAWS IoT Core経由でS3へ蓄積する](funnel-iot-core-s3.md)で説明します。
+
 ## 6. エラーハンドリングと再送を考える
 
 本編のスクリプトは学習用のため、失敗するとその場で停止し、自動再送しません。実際のゲートウェイでは、通信が一時的に切れてもシリアルデータは流れ続けます。HTTP送信を待つ間に受信を止めると、測位データを失う可能性があります。
