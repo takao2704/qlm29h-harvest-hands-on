@@ -135,6 +135,48 @@ RTCMはバイナリデータです。NMEAのように端末へ表示して人が
 
 本編の1ショットスクリプトは、すでに補正されたQLM29Hの出力を観察して送信する役割だけを持ちます。NTRIPの常時接続や再接続処理は実装しません。
 
+## Pythonサンプル実装
+
+補正経路をコードで確認する場合は、別リポジトリの[QLM29H向けPythonサンプル](https://github.com/takao2704/qlm29h-samples)を参照できます。本編で実行するShellスクリプトとは独立した、発展的な実装例です。
+
+| サンプル | 確認できること |
+|---|---|
+| [`rtk_client.py`](https://github.com/takao2704/qlm29h-samples/blob/main/rtk_client.py#L145-L233) | NTRIP接続、RTCM受信、QLM29Hへの転送、GGA返送、再接続という補正経路の基本 |
+| [`rtk_nmea_unified.py`](https://github.com/takao2704/qlm29h-samples/blob/main/rtk_nmea_unified.py#L431-L511) | NTRIP処理を別スレッドにし、NMEA受信やspool付きクラウド送信と分離する常駐向け構成 |
+| [`docs/sequence.md`](https://github.com/takao2704/qlm29h-samples/blob/main/docs/sequence.md) | NTRIP、シリアル受信、spool、Unified Endpoint送信の並行動作 |
+
+最初に読む場合は、補正経路だけに集中した`rtk_client.py`の`build_ntrip_request()`と`ntrip_client()`を確認します。処理の骨格は次のとおりです。
+
+```text
+NTRIP Casterへ接続する
+    ↓
+Mountpointを指定したリクエストと認証情報を送る
+    ↓
+成功レスポンスを確認する
+    ↓
+RTCMをバイナリのまま受信してQLM29Hのシリアルへ書く
+    ↕
+最新のGGAを定期的にCasterへ返す
+    ↓
+切断や例外が起きたら待機して再接続する
+```
+
+この処理では、ネットワークソケットから受信したRTCMのバイト列を、`serial.write()`でQLM29Hへ渡します。同時に、シリアルから読み取った最新GGAを共有し、NTRIP Casterへ定期送信します。
+
+`rtk_nmea_unified.py`では、役割をさらに分離しています。
+
+```text
+NTRIP worker  : Caster接続、GGA返送、RTCMのシリアル転送
+Main          : QLM29HからNMEAを継続受信して最新状態を更新
+Unified worker: spoolの古いJSONからUnified Endpointへ送信
+```
+
+NTRIP通信、NMEA受信、HTTP送信を分けることで、クラウド送信がタイムアウトしても補正情報とNMEAの流れを止めにくくします。複数の処理が同じシリアルポートを使用するため、サンプルではロックを使って書き込みの競合も防ぎます。
+
+Pythonは、ソケット通信、バイナリデータ、シリアル通信、スレッド、例外処理を1つのプログラムで扱いやすいため、この継続処理のサンプルに使用しています。Shellで実装できないという意味ではありませんが、本編のような観察・1ショット送信より複雑になるため、応用実装として分離しています。
+
+サンプルは開発例です。実際に利用するときは、補正サービスが要求するNTRIPバージョン、暗号化方式、Mountpoint、RTCMメッセージ、GGA送信間隔に合わせて設計し、接続先や認証情報をコードへ直接埋め込まないようにします。
+
 ## Geospatial用途で追加確認すること
 
 測位結果を業務で利用するときは、Fixed/Floatだけでなく次も確認します。
