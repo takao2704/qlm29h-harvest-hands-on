@@ -229,12 +229,14 @@ stty -F "$port" "$baud" raw -echo -ixon -ixoff
 
 この1行ずつをNMEAセンテンスと呼びます。代表的なセンテンスは次のとおりです。
 
-| 種類 | 主な内容 |
-|---|---|
-| GGA | 時刻、緯度、経度、測位品質、衛星数、高度 |
-| RMC | 時刻、日付、位置、速度、進行方向 |
-| GSA | 測位に使用する衛星と精度指標 |
-| GSV | 観測している衛星の情報 |
+| 種類 | 正式名称 | 日本語での意味 | 主な内容 |
+|---|---|---|---|
+| GGA | Global Positioning System Fix Data | GPS/GNSSの測位結果データ | 時刻、緯度、経度、測位品質、衛星数、高度 |
+| RMC | Recommended Minimum Specific GNSS Data | 推奨される最小限のGNSSデータ | 時刻、日付、位置、速度、進行方向 |
+| GSA | GNSS DOP and Active Satellites | GNSSの精度指標と測位使用衛星 | 測位に使用する衛星と精度指標 |
+| GSV | GNSS Satellites in View | 受信機から見えているGNSS衛星 | 観測している衛星の情報 |
+
+これらはNMEAでセンテンスの種類を表す3文字の識別子です。必ずしも各文字が英単語の頭文字と一対一で対応する略語ではありません。例えばGGAの正式名称は`Global Positioning System Fix Data`です。また、GSAに含まれるDOPは`Dilution of Precision`の略で、衛星の配置によって測位精度がどの程度低下しやすいかを表す指標です。
 
 今回は現在位置とRTK状態を1行で確認できるGGAを使います。
 
